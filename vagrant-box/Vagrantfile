@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "precise64"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+
+  config.vm.synced_folder '../', '/concurrency_control_project'
+
+  config.vm.provider :virtualbox do |vb, override|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+    override.vm.network :forwarded_port, guest: 5050, host: 5050
+    override.vm.network :forwarded_port, guest: 5051, host: 5051
+    override.vm.network :forwarded_port, guest: 8080, host: 8080
+  end
+
+  # #Setup hostmanager config to update the host files
+  # config.hostmanager.enabled = true
+  # config.hostmanager.manage_host = true
+  # config.hostmanager.ignore_private_ip = false
+  # config.hostmanager.include_offline = true
+  # config.vm.provision :hostmanager
+  # config.vm.define 'ubuntu' do |node|
+  #   node.vm.hostname = 'ubuntu.local'
+  #   node.vm.network :private_network, ip: '192.168.42.42'
+  #   node.hostmanager.aliases = %w(ubuntu.local)
+  # end
+
+  config.vm.provision "shell", path: "bootstrap.sh"
+end
